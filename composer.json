@@ -1,0 +1,20 @@
+{
+    "name": "streetfixer/app",
+    "type": "project",
+    "require": {
+        "laravel/framework": "^11.0",
+        "laravel/tinker": "^2.0",
+        "inertiajs/inertia-laravel": "^2.0",
+        "laravel/sanctum": "^4.0",
+        "tightenco/ziggy": "^2.0"
+    },
+    "authors": [
+        {
+            "name": "StreetFixer",
+            "email": "dev@streetfixer.local"
+        }
+    ],
+    "require-dev": {
+        "laravel/breeze": "^2.3"
+    }
+}
