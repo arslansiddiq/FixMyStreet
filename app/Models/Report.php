@@ -17,6 +17,7 @@ class Report extends Model
         'user_id',
         'category_id',
         'authority_id',
+        'assigned_bid_id',
     ];
 
     protected $casts = [
@@ -62,5 +63,29 @@ class Report extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * Get the bids for the report.
+     */
+    public function bids(): HasMany
+    {
+        return $this->hasMany(Bid::class);
+    }
+
+    /**
+     * Get the donations for the report.
+     */
+    public function donations(): HasMany
+    {
+        return $this->hasMany(Donation::class);
+    }
+
+    /**
+     * Get the assigned bid for the report.
+     */
+    public function assignedBid(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Bid::class, 'assigned_bid_id');
     }
 }
