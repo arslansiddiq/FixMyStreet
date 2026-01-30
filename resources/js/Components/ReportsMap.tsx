@@ -92,47 +92,88 @@ export default function ReportsMap({ reports, selectedReport, onReportClick }: P
         reports.forEach(report => {
             const marker = L.marker([report.lat, report.lng]);
             
-            // Create popup content
+            // Create popup content safely using DOM manipulation
+            const popupDiv = document.createElement('div');
+            popupDiv.style.minWidth = '200px';
+            
+            const title = document.createElement('h3');
+            title.style.fontWeight = 'bold';
+            title.style.fontSize = '1.1em';
+            title.style.marginBottom = '8px';
+            title.style.color = '#1F2937';
+            title.textContent = report.title;
+            popupDiv.appendChild(title);
+            
+            const description = document.createElement('p');
+            description.style.marginBottom = '8px';
+            description.style.color = '#4B5563';
+            description.style.fontSize = '0.9em';
+            const descText = report.description.length > 100 
+                ? report.description.substring(0, 100) + '...' 
+                : report.description;
+            description.textContent = descText;
+            popupDiv.appendChild(description);
+            
             const statusColor = {
                 'open': '#FEF3C7',
                 'in-progress': '#DBEAFE',
                 'fixed': '#D1FAE5',
                 'closed': '#F3F4F6'
             }[report.status] || '#F3F4F6';
+            
+            const statusBadge = document.createElement('div');
+            statusBadge.style.marginBottom = '6px';
+            const statusSpan = document.createElement('span');
+            statusSpan.style.backgroundColor = statusColor;
+            statusSpan.style.padding = '4px 8px';
+            statusSpan.style.borderRadius = '9999px';
+            statusSpan.style.fontSize = '0.75em';
+            statusSpan.style.fontWeight = '600';
+            statusSpan.textContent = report.status.toUpperCase();
+            statusBadge.appendChild(statusSpan);
+            popupDiv.appendChild(statusBadge);
+            
+            const categoryDiv = document.createElement('div');
+            categoryDiv.style.fontSize = '0.85em';
+            categoryDiv.style.color = '#6B7280';
+            categoryDiv.style.marginBottom = '4px';
+            categoryDiv.innerHTML = '<strong>Category:</strong> ';
+            categoryDiv.appendChild(document.createTextNode(report.category.name));
+            popupDiv.appendChild(categoryDiv);
+            
+            const userDiv = document.createElement('div');
+            userDiv.style.fontSize = '0.85em';
+            userDiv.style.color = '#6B7280';
+            userDiv.style.marginBottom = '4px';
+            userDiv.innerHTML = '<strong>Reported by:</strong> ';
+            userDiv.appendChild(document.createTextNode(report.user.name));
+            popupDiv.appendChild(userDiv);
+            
+            if (report.authority) {
+                const authorityDiv = document.createElement('div');
+                authorityDiv.style.fontSize = '0.85em';
+                authorityDiv.style.color = '#6B7280';
+                authorityDiv.style.marginBottom = '8px';
+                authorityDiv.innerHTML = '<strong>Authority:</strong> ';
+                authorityDiv.appendChild(document.createTextNode(report.authority.name));
+                popupDiv.appendChild(authorityDiv);
+            }
+            
+            if (report.photos.length > 0) {
+                const photoDiv = document.createElement('div');
+                photoDiv.style.marginTop = '8px';
+                const img = document.createElement('img');
+                img.src = `/storage/${report.photos[0].path}`;
+                img.style.width = '100%';
+                img.style.borderRadius = '4px';
+                img.style.maxHeight = '150px';
+                img.style.objectFit = 'cover';
+                img.alt = `Photo of ${report.title}`;
+                photoDiv.appendChild(img);
+                popupDiv.appendChild(photoDiv);
+            }
 
-            const popupContent = `
-                <div style="min-width: 200px;">
-                    <h3 style="font-weight: bold; font-size: 1.1em; margin-bottom: 8px; color: #1F2937;">
-                        ${report.title}
-                    </h3>
-                    <p style="margin-bottom: 8px; color: #4B5563; font-size: 0.9em;">
-                        ${report.description.length > 100 ? report.description.substring(0, 100) + '...' : report.description}
-                    </p>
-                    <div style="margin-bottom: 6px;">
-                        <span style="background-color: ${statusColor}; padding: 4px 8px; border-radius: 9999px; font-size: 0.75em; font-weight: 600;">
-                            ${report.status.toUpperCase()}
-                        </span>
-                    </div>
-                    <div style="font-size: 0.85em; color: #6B7280; margin-bottom: 4px;">
-                        <strong>Category:</strong> ${report.category.name}
-                    </div>
-                    <div style="font-size: 0.85em; color: #6B7280; margin-bottom: 4px;">
-                        <strong>Reported by:</strong> ${report.user.name}
-                    </div>
-                    ${report.authority ? `
-                        <div style="font-size: 0.85em; color: #6B7280; margin-bottom: 8px;">
-                            <strong>Authority:</strong> ${report.authority.name}
-                        </div>
-                    ` : ''}
-                    ${report.photos.length > 0 ? `
-                        <div style="margin-top: 8px;">
-                            <img src="/storage/${report.photos[0].path}" style="width: 100%; border-radius: 4px; max-height: 150px; object-fit: cover;" />
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-
-            marker.bindPopup(popupContent);
+            marker.bindPopup(popupDiv);
             
             if (onReportClick) {
                 marker.on('click', () => onReportClick(report));

@@ -11,6 +11,7 @@ use Inertia\Inertia;
 Route::get('/', function () {
     $reports = Report::with(['user', 'category', 'authority', 'photos'])
         ->latest()
+        ->limit(100) // Limit to 100 most recent reports for performance
         ->get();
 
     return Inertia::render('Welcome', [

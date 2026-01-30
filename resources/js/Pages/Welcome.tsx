@@ -57,7 +57,7 @@ export default function Welcome({
             filtered = filtered.filter(report => 
                 report.title.toLowerCase().includes(searchLower) ||
                 report.description.toLowerCase().includes(searchLower) ||
-                report.authority?.name.toLowerCase().includes(searchLower) ||
+                (report.authority && report.authority.name.toLowerCase().includes(searchLower)) ||
                 report.category.name.toLowerCase().includes(searchLower)
             );
         }
@@ -210,7 +210,7 @@ export default function Welcome({
                                         {report.photos.length > 0 && (
                                             <img
                                                 src={`/storage/${report.photos[0].path}`}
-                                                alt={report.title}
+                                                alt={`Photo of ${report.title}`}
                                                 className="mb-3 h-40 w-full rounded-md object-cover"
                                             />
                                         )}
