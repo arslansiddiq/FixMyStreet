@@ -60,6 +60,11 @@ class ReportController extends Controller
      */
     public function create(): Response
     {
+        // Check if user has permission to create reports
+        if (!auth()->user()->can('create-report')) {
+            abort(403, 'You do not have permission to create reports.');
+        }
+
         return Inertia::render('Reports/Create', [
             'categories' => Category::all(),
         ]);
@@ -70,6 +75,11 @@ class ReportController extends Controller
      */
     public function store(Request $request)
     {
+        // Check if user has permission to create reports
+        if (!$request->user()->can('create-report')) {
+            abort(403, 'You do not have permission to create reports.');
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -132,7 +142,15 @@ class ReportController extends Controller
      */
     public function show(Report $report): Response
     {
-        $report->load(['user', 'category', 'authority', 'photos', 'comments.user']);
+        $report->load([
+            'user', 
+            'category', 
+            'authority', 
+            'photos', 
+            'comments.user',
+            'bids.user',
+            'donations.user'
+        ]);
 
         return Inertia::render('Reports/Show', [
             'report' => $report,
@@ -144,6 +162,11 @@ class ReportController extends Controller
      */
     public function update(Request $request, Report $report)
     {
+        // Check if user has permission to edit or approve reports
+        if (!$request->user()->can('edit-report') && !$request->user()->can('approve-report')) {
+            abort(403, 'You do not have permission to update reports.');
+        }
+
         $validated = $request->validate([
             'status' => 'sometimes|in:open,in-progress,fixed,closed',
         ]);
@@ -159,6 +182,22 @@ class ReportController extends Controller
         }
 
         return back();
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Report $report)
+    {
+        // Check if user has permission to delete reports
+        if (!auth()->user()->can('delete-report')) {
+            abort(403, 'You do not have permission to delete reports.');
+        }
+
+        $report->delete();
+
+        return redirect()->route('reports.index')
+            ->with('success', 'Report deleted successfully!');
     }
 
     /**
