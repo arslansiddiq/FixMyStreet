@@ -2,16 +2,23 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Models\Category;
+use App\Models\Report;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
+    $reports = Report::with(['user', 'category', 'authority', 'photos'])
+        ->latest()
+        ->limit(100) // Limit to 100 most recent reports for performance
+        ->get();
+
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+        'reports' => $reports,
+        'categories' => Category::all(),
     ]);
 });
 
